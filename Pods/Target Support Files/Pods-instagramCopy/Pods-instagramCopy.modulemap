@@ -1,0 +1,6 @@
+framework module Pods_instagramCopy {
+  umbrella header "Pods-instagramCopy-umbrella.h"
+
+  export *
+  module * { export * }
+}
