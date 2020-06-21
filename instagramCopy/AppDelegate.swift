@@ -21,11 +21,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         
         window = UIWindow()
         window?.rootViewController = MainTabVC()
-        
-        
-//        window?.rootViewController = UINavigationController(rootViewController: LoginVC()) // 변경사항
-//        FirebaseApp.configure() //변경 사항
-        
+    
         return true
     }
 }

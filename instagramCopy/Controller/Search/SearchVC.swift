@@ -49,7 +49,7 @@ class SearchVC: UITableViewController {
         let userProfileVC = UserProfileVC(collectionViewLayout: UICollectionViewFlowLayout())
         
         // passes user from searchVc to userProfileVC
-        userProfileVC.currentUser = user
+        userProfileVC.user = user
         
         // push view controller
         navigationController?.pushViewController(userProfileVC, animated: true)
