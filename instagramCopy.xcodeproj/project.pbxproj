@@ -42,6 +42,7 @@
 		C7F265A82483951300E0BBA1 /* SelectPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265A72483951300E0BBA1 /* SelectPhotoCell.swift */; };
 		C7F265AA2483954100E0BBA1 /* SelectPhotoHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265A92483954100E0BBA1 /* SelectPhotoHeader.swift */; };
 		C7F265AC2484CA8500E0BBA1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265AB2484CA8500E0BBA1 /* Constants.swift */; };
+		C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -84,6 +85,7 @@
 		C7F265A72483951300E0BBA1 /* SelectPhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPhotoCell.swift; sourceTree = "<group>"; };
 		C7F265A92483954100E0BBA1 /* SelectPhotoHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPhotoHeader.swift; sourceTree = "<group>"; };
 		C7F265AB2484CA8500E0BBA1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPostCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,6 +231,7 @@
 				C7BE405C24908543001FA135 /* FeedCell.swift */,
 				C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */,
 				C7A1FD3324949D200075CB50 /* NotificationCell.swift */,
+				C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -392,6 +395,7 @@
 				C780EF05247A552100A52183 /* FollowLikeCell.swift in Sources */,
 				C7306BD2245FAC5C0039DB49 /* FeedVC.swift in Sources */,
 				C7306BD0245FA7520039DB49 /* MainTabVC.swift in Sources */,
+				C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */,
 				C7A1FD3424949D200075CB50 /* NotificationCell.swift in Sources */,
 				C7F265AC2484CA8500E0BBA1 /* Constants.swift in Sources */,
 				C7C6F148245A90DD00F87200 /* AppDelegate.swift in Sources */,
