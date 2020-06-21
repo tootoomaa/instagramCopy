@@ -19,6 +19,8 @@ class MessagesController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    configureNavigationBar()
+    
     tableView.register(MessageCell.self, forCellReuseIdentifier: reuseIdentifer)
   }
   
@@ -45,8 +47,10 @@ class MessagesController: UITableViewController {
   //MARK: - Handler
   
   @objc func handleNewMessage() {
-    print("handleNewMessage")
-    
+    let newMessageController = NewMessageController()
+    let navigationController = UINavigationController(rootViewController: newMessageController)
+    navigationController.modalPresentationStyle = .fullScreen
+    self.present(navigationController, animated: true, completion: nil)
   }
   
   func configureNavigationBar() {

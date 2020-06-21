@@ -45,6 +45,8 @@
 		C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */; };
 		C7FB28F9249F3A5B00BA0E4A /* MessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28F8249F3A5B00BA0E4A /* MessagesController.swift */; };
 		C7FB28FC249F3BF000BA0E4A /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28FB249F3BF000BA0E4A /* MessageCell.swift */; };
+		C7FB28FE249F87DB00BA0E4A /* NewMessageController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28FD249F87DB00BA0E4A /* NewMessageController.swift */; };
+		C7FB2900249F889000BA0E4A /* NewMessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28FF249F889000BA0E4A /* NewMessageCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -90,6 +92,8 @@
 		C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPostCell.swift; sourceTree = "<group>"; };
 		C7FB28F8249F3A5B00BA0E4A /* MessagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesController.swift; sourceTree = "<group>"; };
 		C7FB28FB249F3BF000BA0E4A /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
+		C7FB28FD249F87DB00BA0E4A /* NewMessageController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMessageController.swift; sourceTree = "<group>"; };
+		C7FB28FF249F889000BA0E4A /* NewMessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewMessageCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -268,6 +272,7 @@
 			isa = PBXGroup;
 			children = (
 				C7FB28F8249F3A5B00BA0E4A /* MessagesController.swift */,
+				C7FB28FD249F87DB00BA0E4A /* NewMessageController.swift */,
 			);
 			path = Messages;
 			sourceTree = "<group>";
@@ -276,6 +281,7 @@
 			isa = PBXGroup;
 			children = (
 				C7FB28FB249F3BF000BA0E4A /* MessageCell.swift */,
+				C7FB28FF249F889000BA0E4A /* NewMessageCell.swift */,
 			);
 			path = Messages;
 			sourceTree = "<group>";
@@ -426,7 +432,9 @@
 				C7BE405D24908543001FA135 /* FeedCell.swift in Sources */,
 				C7306BCC245C40FF0039DB49 /* SignUpVC.swift in Sources */,
 				C7A1FD3624950DCF0075CB50 /* Notification.swift in Sources */,
+				C7FB28FE249F87DB00BA0E4A /* NewMessageController.swift in Sources */,
 				C7C6F15F245A912600F87200 /* LoginVC.swift in Sources */,
+				C7FB2900249F889000BA0E4A /* NewMessageCell.swift in Sources */,
 				C7A1FD2E2493A0E30075CB50 /* CommentVC.swift in Sources */,
 				C7C6F162245A91F600F87200 /* Extensions.swift in Sources */,
 			);
