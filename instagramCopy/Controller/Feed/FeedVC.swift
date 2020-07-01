@@ -168,7 +168,8 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   }
   
   @objc func handleShowMessages() {
-    
+    let messagesContoller = MessagesController()
+    navigationController?.pushViewController(messagesContoller, animated: true)
   }
   
   func handleCommentTapped(for cell: FeedCell) {
