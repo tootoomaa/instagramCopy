@@ -47,6 +47,7 @@ class MessageCell: UITableViewCell {
     detailTextLabel?.text = "some test label to see if this work"
   }
   
+  
   override func layoutSubviews() {
     
     super.layoutSubviews()
