@@ -7,10 +7,24 @@
 //
 
 import UIKit
+import Firebase
 
 class MessageCell: UITableViewCell {
 
   //MARK: - Properties
+  
+  var message: Message? {
+    didSet {
+      guard let messageText = message?.messageText else { return }
+      detailTextLabel?.text = messageText
+      if let seconds = message?.creationDate {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "hh:mm a"
+        timeStampLabel.text = dateFormatter.string(from: seconds)
+      }
+      configureUserData()
+    }
+  }
   
   let profileImageView: CustomImageView = {
       let iv = CustomImageView()
@@ -66,4 +80,14 @@ class MessageCell: UITableViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
+  // MARK: - Handlers
+  
+  func configureUserData() {
+    guard let message = message else { return }
+    let chatPatrnerId = message.getChatPartnerId()
+    Database.fetchUser(with: chatPatrnerId) { (user) in
+      self.profileImageView.loadImage(with: user.profileImageUrl)
+      self.textLabel?.text = user.username
+    }
+  }
 }

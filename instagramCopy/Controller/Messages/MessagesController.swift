@@ -14,12 +14,15 @@ class MessagesController: UITableViewController {
   
   //MARK: - Properties
   var messages = [Message]()
+  var messagesDictionary = [String: Message]()
   
   //MARK: - init
   override func viewDidLoad() {
     super.viewDidLoad()
     
     configureNavigationBar()
+    
+    fetchMessages()
     
     tableView.register(MessageCell.self, forCellReuseIdentifier: reuseIdentifer)
   }
@@ -37,11 +40,17 @@ class MessagesController: UITableViewController {
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     let cell = tableView.dequeueReusableCell(withIdentifier: reuseIdentifer, for: indexPath) as! MessageCell
     
+    cell.message = messages[indexPath.row]
+    
     return cell
   }
   
   override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    print("selectRow")
+    let message = messages[indexPath.row]
+    let chatpartnerId = message.getChatPartnerId()
+    Database.fetchUser(with: chatpartnerId) { (user) in
+      self.showChatController(forUser: user)
+    }
   }
   
   //MARK: - Handler
@@ -68,13 +77,41 @@ class MessagesController: UITableViewController {
     
   }
   
+  // MARK: - API
   
+  func fetchMessages() {
+    
+    guard let currentUid = Auth.auth().currentUser?.uid else { return }
+    
+    self.messages.removeAll()
+    self.messagesDictionary.removeAll()
+    self.tableView.reloadData()
+    
+    USER_MESSAGES_REF.child(currentUid).observe(.childAdded) { (snapshot) in
+      
+      let uid = snapshot.key
+      
+      USER_MESSAGES_REF.child(currentUid).child(uid).observe(.childAdded, with: { (snapshot) in
+        
+        let messageId = snapshot.key
+        self.fetchMessage(withMessageId: messageId)
+      })
+    }
+  }
   
-  
-  
-  
-  
-  
+  func fetchMessage(withMessageId messageId: String) {
+    MESSAGES_REF.child(messageId).observeSingleEvent(of: .value) { (snaphost) in
+      guard let dictionary = snaphost.value as? Dictionary<String, AnyObject> else { return }
+      
+      let message = Message(dictionary: dictionary)
+      
+      let chatPartnerId = message.getChatPartnerId()
+      self.messagesDictionary[chatPartnerId] = message
+      self.messages = Array(self.messagesDictionary.values)
+      
+      self.tableView?.reloadData()
+    }
+  }
   
   
   

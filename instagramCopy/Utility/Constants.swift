@@ -24,6 +24,9 @@ let USER_FEED_REF = DB_REF.child("user-feeds")
 let USER_LIKES_REF = DB_REF.child("user-likes")
 let POST_LIKES_REF = DB_REF.child("post-likes")
 
+let MESSAGES_REF = DB_REF.child("messages")
+let USER_MESSAGES_REF = DB_REF.child("user-messages")
+
 let COMMENT_REF = DB_REF.child("comments")
 
 let NOTIFICATION_REF = DB_REF.child("notifications")
