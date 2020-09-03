@@ -24,6 +24,7 @@
 		C780EF01247A087D00A52183 /* Protocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780EF00247A087D00A52183 /* Protocols.swift */; };
 		C780EF03247A542400A52183 /* FollowLikeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780EF02247A542400A52183 /* FollowLikeVC.swift */; };
 		C780EF05247A552100A52183 /* FollowLikeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780EF04247A552100A52183 /* FollowLikeCell.swift */; };
+		C79A0B472500AB2C0061F078 /* EditProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79A0B462500AB2C0061F078 /* EditProfileController.swift */; };
 		C7A05234247222DF00AF149F /* SearchUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A05233247222DF00AF149F /* SearchUserCell.swift */; };
 		C7A1FD2E2493A0E30075CB50 /* CommentVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */; };
 		C7A1FD302493A1C30075CB50 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */; };
@@ -74,6 +75,7 @@
 		C780EF00247A087D00A52183 /* Protocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Protocols.swift; sourceTree = "<group>"; };
 		C780EF02247A542400A52183 /* FollowLikeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowLikeVC.swift; sourceTree = "<group>"; };
 		C780EF04247A552100A52183 /* FollowLikeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowLikeCell.swift; sourceTree = "<group>"; };
+		C79A0B462500AB2C0061F078 /* EditProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileController.swift; sourceTree = "<group>"; };
 		C7A05233247222DF00AF149F /* SearchUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUserCell.swift; sourceTree = "<group>"; };
 		C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentVC.swift; sourceTree = "<group>"; };
 		C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 			children = (
 				C7306BD9245FACD70039DB49 /* UserProfileVC.swift */,
 				C780EF02247A542400A52183 /* FollowLikeVC.swift */,
+				C79A0B462500AB2C0061F078 /* EditProfileController.swift */,
 			);
 			path = UserPfogile;
 			sourceTree = "<group>";
@@ -451,6 +454,7 @@
 				C733563724ACB47F001AFD27 /* Message.swift in Sources */,
 				C7306BD2245FAC5C0039DB49 /* FeedVC.swift in Sources */,
 				C7F89E0324B2C20E00774C7F /* HashtagCell.swift in Sources */,
+				C79A0B472500AB2C0061F078 /* EditProfileController.swift in Sources */,
 				C7306BD0245FA7520039DB49 /* MainTabVC.swift in Sources */,
 				C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */,
 				C7F89E0124B2C05B00774C7F /* HashtagController.swift in Sources */,

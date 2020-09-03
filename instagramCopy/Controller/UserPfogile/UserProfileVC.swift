@@ -125,9 +125,13 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     guard let user = header.user else { return }
     
     if header.editProfileFollowButton.titleLabel?.text == "Edit Profile" {
-      print("Edir Profile")
+      let editProfileController = EditProfileController()
+      let navigationController = UINavigationController(rootViewController: editProfileController)
+      editProfileController.modalPresentationStyle = .overFullScreen
+      editProfileController.user = self.user
+      editProfileController.userProfileController = self
+      present(navigationController, animated: true, completion: nil)
     } else {
-      
       if header.editProfileFollowButton.titleLabel?.text == "Follow" {
         header.editProfileFollowButton.setTitle("Following", for: .normal)
         user.follow()
