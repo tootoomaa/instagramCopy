@@ -92,7 +92,7 @@ class MessagesController: UITableViewController {
       let uid = snapshot.key
       
       USER_MESSAGES_REF.child(currentUid).child(uid).observe(.childAdded, with: { (snapshot) in
-        
+         //각각의 메시지 key를 통해 실제 메시지에 대한 내용을 불러옴
         let messageId = snapshot.key
         self.fetchMessage(withMessageId: messageId)
       })
@@ -106,7 +106,9 @@ class MessagesController: UITableViewController {
       let message = Message(dictionary: dictionary)
       
       let chatPartnerId = message.getChatPartnerId()
+      // 대화창에 보여줄 정보만 저장 (마지막 대화 정보)
       self.messagesDictionary[chatPartnerId] = message
+      // 모든 사용자와의 메시지 정보
       self.messages = Array(self.messagesDictionary.values)
       
       self.tableView?.reloadData()

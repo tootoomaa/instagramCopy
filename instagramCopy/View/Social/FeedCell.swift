@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import ActiveLabel
 
 class FeedCell: UICollectionViewCell {
   
@@ -117,8 +118,9 @@ class FeedCell: UICollectionViewCell {
     return label
   }()
   
-  let captionLabel: UILabel = {
-    let label = UILabel()
+  let captionLabel: ActiveLabel = {
+    let label = ActiveLabel()
+    label.numberOfLines = 0
     return label
   }()
   
@@ -197,12 +199,36 @@ class FeedCell: UICollectionViewCell {
     
     guard self.post != nil else { return }
     guard let caption = self.post?.caption else { return }
+    guard let username = post?.user?.username else { return }
     
-    let attributedText = NSMutableAttributedString(string: user.username, attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 12)])
+    // look for username as pattern
+    let customType = ActiveType.custom(pattern: "^\(username)\\b")
     
-    attributedText.append(NSAttributedString(string: " \(caption)", attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]))
+    // enable username as custom type
+    captionLabel.enabledTypes = [.mention, .hashtag, .url, customType]
     
-    captionLabel.attributedText = attributedText
+    // configure username link attributes
+    captionLabel.configureLinkAttribute = { (type, attributes, isSelected) in
+      var atts = attributes
+      
+      switch type {
+      case .custom:
+        atts[NSAttributedString.Key.font] = UIFont.boldSystemFont(ofSize: 12)
+      default: ()
+      }
+      return atts
+    }
+    
+    captionLabel.customize { (label) in
+      label.text = "\(username), \(caption)"
+      label.customColor[customType] = .black
+      label.font = UIFont.systemFont(ofSize: 12)
+      label.textColor = .black
+      captionLabel.numberOfLines = 2
+    }
+    
+    postTimaLabel.text = "2 Day Ago"
+    
   }
   
   func congifureActionButton() {

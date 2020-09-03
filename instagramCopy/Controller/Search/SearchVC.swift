@@ -22,6 +22,8 @@ class SearchVC: UITableViewController , UISearchBarDelegate,UICollectionViewDele
   var collectionView: UICollectionView!
   var collectionViewEnabled = true
   var posts = [Post]()
+  var currentKey: String?
+  var userCurrenyKey: String?
   
   //MARK: - init
   override func viewDidLoad() {
@@ -36,14 +38,15 @@ class SearchVC: UITableViewController , UISearchBarDelegate,UICollectionViewDele
     // configure collection View
     configureCollectionView()
     
+    // configure refrechControll
+    configureRefreshControll()
+    
     // separator insets
     tableView.separatorInset = UIEdgeInsets(top: 0, left: 64, bottom: 0, right: 0)
     
     // fetch Posts
     fetchPosts()
     
-    // fetch Users
-    fetchUser()
   }
   
   // MARK: - Table view data source
@@ -82,6 +85,16 @@ class SearchVC: UITableViewController , UISearchBarDelegate,UICollectionViewDele
     } else {
       return users.count
     }
+  }
+  
+  override func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+    
+    if users.count > 3 {
+      if indexPath.item == users.count - 1{
+        fetchUser()
+      }
+    }
+    
   }
   
   override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -162,11 +175,20 @@ class SearchVC: UITableViewController , UISearchBarDelegate,UICollectionViewDele
     navigationController?.pushViewController(feedVC, animated: true)
   }
   
+  func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    if posts.count > 20 {
+      if indexPath.item == posts.count - 1 {
+        fetchPosts()
+      }
+    }
+  }
   
   //MARK: - UISearchBar
   
   func searchBarTextDidBeginEditing(_ searchBar: UISearchBar) {
     searchBar.showsCancelButton = true
+    
+    fetchUser()
     
     // 사용자가 입력을 시작하면 collectionVeiw 숨김 처리
     collectionView.isHidden = true
@@ -211,33 +233,99 @@ class SearchVC: UITableViewController , UISearchBarDelegate,UICollectionViewDele
     tableView.reloadData()
   }
   
+  // MARK: - Handler
+  @objc func handleRefresh() {
+    posts.removeAll(keepingCapacity: false)
+    self.currentKey = nil
+    fetchPosts()
+    tableView.reloadData()
+  }
+  
+  func configureRefreshControll() {
+    let refreshControl = UIRefreshControl()
+    refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+    tableView.refreshControl = refreshControl
+  }
   
   
   //MARK: - fetch User Data
   func fetchUser() {
-    
-    Database.database().reference().child("users").observe(.childAdded) { (snaphot) in
+    if userCurrenyKey == nil {
+      USER_REF.queryLimited(toLast: 4).observeSingleEvent(of: .value) { (snapshot) in
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObject.forEach { (snapshot) in
+          let uid = snapshot.key
+          
+          Database.fetchUser(with: uid) { (user) in
+            self.users.append(user)
+            self.tableView.reloadData()
+          }
+        }
+        self.userCurrenyKey = first.key
+      }
+    } else {
       
-      // uid
-      let uid = snaphot.key
-      
-      Database.fetchUser(with: uid, completion: { (user) in
-        self.users.append(user)
-        self.tableView.reloadData()
-      })
+      USER_REF.queryOrderedByKey().queryEnding(atValue: userCurrenyKey).queryLimited(toLast: 5).observeSingleEvent(of: .value) { (snapshot) in
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObject.forEach { (snapshot) in
+          let uid = snapshot.key
+          if uid != self.userCurrenyKey {
+            Database.fetchUser(with: uid) { (user) in
+              self.users.append(user)
+              self.tableView.reloadData()
+            }
+          }
+        }
+        self.userCurrenyKey = first.key
+      }
     }
   }
   
   func fetchPosts() {
-    posts.removeAll()
-    
-    POSTS_REF.observe(.childAdded) { (snapshot) in
-      let postId = snapshot.key
+    if currentKey == nil {
       
-      Database.fetchPost(with: postId, completion: { (post) in
-        self.posts.append(post)
-        self.collectionView.reloadData()
-      })
+      // initial Data pull
+      POSTS_REF.queryLimited(toLast: 21).observeSingleEvent(of: .value) { (snapshot) in
+        
+        self.tableView.refreshControl?.endRefreshing()
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObject.forEach { (snapshot) in
+          let postId = snapshot.key
+          
+          Database.fetchPost(with: postId) { (post) in
+            self.posts.append(post)
+            self.collectionView.reloadData()
+          }
+        }
+        self.currentKey = first.key
+      }
+    } else {
+     //paginate Here
+      POSTS_REF.queryOrderedByKey().queryEnding(atValue: self.currentKey).queryLimited(toLast: 10).observeSingleEvent(of: .value) { (snapshot) in
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObject.forEach { (snapshot) in
+          let postId = snapshot.key
+          if postId != self.currentKey {
+            Database.fetchPost(with: postId) { (post) in
+              self.posts.append(post)
+              self.collectionView.reloadData()
+            }
+          }
+        }
+        self.currentKey = first.key
+      }
     }
   }
 }

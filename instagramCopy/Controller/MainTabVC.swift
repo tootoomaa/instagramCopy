@@ -79,7 +79,7 @@ class MainTabVC: UITabBarController, UITabBarControllerDelegate{
     return true
   }
   
-  /// Construct new controller
+  // Construct new controller
   func constructNavController(unselectedImage:UIImage, selectedImage:UIImage, rootViewController: UIViewController = UIViewController()) -> UINavigationController {
     
     // Construct nav controller

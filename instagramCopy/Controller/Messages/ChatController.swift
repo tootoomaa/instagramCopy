@@ -30,11 +30,11 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     containerView.addSubview(sendButton)
     sendButton.anchor(top: nil, left: nil, bottom: nil, right: containerView.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 8, width: 50, height: 0)
     sendButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-
+    
     
     containerView.addSubview(messageTextField)
     messageTextField.anchor(top: containerView.topAnchor, left: containerView.leftAnchor, bottom: containerView.bottomAnchor, right: sendButton.leftAnchor , paddingTop: 0, paddingLeft: 20, paddingBottom: 0, paddingRight: 8, width: 0, height: 0)
-  
+    
     let separatorView = UIView()
     separatorView.backgroundColor = .lightGray
     containerView.addSubview(separatorView)
@@ -49,13 +49,13 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     return tf
   }()
   
-//  let sendButton: UIButton = {
-//    let bt = UIButton(type: .system)
-//    bt.setTitle("Send", for: .normal)
-//    bt.titleLabel?.font = .boldSystemFont(ofSize: 14)
-//    bt.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
-//    return bt
-//  }()
+  //  let sendButton: UIButton = {
+  //    let bt = UIButton(type: .system)
+  //    bt.setTitle("Send", for: .normal)
+  //    bt.titleLabel?.font = .boldSystemFont(ofSize: 14)
+  //    bt.addTarget(self, action: #selector(handleSend), for: .touchUpInside)
+  //    return bt
+  //  }()
   
   // MARK: - Init
   
@@ -70,9 +70,9 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     configureNavigationBar()
     
     observeMesages()
-  
+    
   }
-
+  
   
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
@@ -93,7 +93,7 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
   override var canBecomeFirstResponder: Bool {
     return true
   }
-
+  
   
   // MARK: - UICollectionVeiw
   
@@ -114,8 +114,10 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! ChatCell
     
+    // cell에 메시지 정보 전달
     cell.message = messages[indexPath.item]
     
+    // cell의 정렬 방식 설정
     configureMessage(cell: cell, message: messages[indexPath.item])
     
     return cell
@@ -123,10 +125,10 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
   
   // MARK: - Handler
   
+  // "Send" 버튼 액션
   @objc func handleSend() {
-    print("tap Send")
-    uploadMessageToServer()
-    messageTextField.text = nil
+    uploadMessageToServer()      // 데이터 저장
+    messageTextField.text = nil  // 텍스트 필드 초기화
   }
   
   @objc func handeInfoTapped() {
@@ -149,19 +151,20 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
     cell.frame.size.height = estimateFrameForText(message.messageText).height + 20
     
     if message.fromId == currentUid {
-      cell.bubbleViewRightAnchor?.isActive = true
-      cell.bubbleViewleftAnchor?.isActive = false
+      // 로그인 사용자가 보낸 메시지인 경우 오른쪽정렬 활성화
+      cell.bubbleViewRightAnchor?.isActive = true // 오른쪽
+      cell.bubbleViewleftAnchor?.isActive = false // 왼쪽
       cell.bubbleView.backgroundColor = UIColor.rgb(red: 0, green: 137, blue: 249)
       cell.textView.textColor = .white
-      cell.profileImageView.isHidden = true
+      cell.profileImageView.isHidden = true // 프로필 사진 숨김
     } else {
-      cell.bubbleViewRightAnchor?.isActive = false
-      cell.bubbleViewleftAnchor?.isActive = true
+      // 체팅 대상이 보낸 메시지인 경우 왼쪽 정렬 활성화
+      cell.bubbleViewRightAnchor?.isActive = false // 오른쪽
+      cell.bubbleViewleftAnchor?.isActive = true  // 왼쪽
       cell.bubbleView.backgroundColor = UIColor.rgb(red: 240, green: 240, blue: 240)
       cell.textView.textColor = .black
-      cell.profileImageView.isHidden = false
+      cell.profileImageView.isHidden = false // 프로필 사진 표시
     }
-    
   }
   
   func configureNavigationBar() {
@@ -181,24 +184,28 @@ class ChatController: UICollectionViewController, UICollectionViewDelegateFlowLa
   
   // MARK: - API
   
+  // 메시지 데이터를 실제로 서버에 저장 하는 부분
   func uploadMessageToServer() {
-    
+    // 데이터 검증
     guard let messageText = messageTextField.text else { return }
     guard let currnetUid = Auth.auth().currentUser?.uid else { return }
     guard let user = self.user else { return }
     guard let toUserUid = user.uid else { return }
     
+    // message key 생성
     let messageRef = MESSAGES_REF.childByAutoId()
     if let messageKey = messageRef.key {
-    
+      
       let creationDate = Int(NSDate().timeIntervalSince1970)
+      // 저장 데이터 생성
       let messageValues = ["creationDate": creationDate,
                            "fromId": currnetUid,
                            "toId": toUserUid,
                            "messageText": messageText] as [String: Any]
-      
+      // 메시지 데이터 저장
       messageRef.updateChildValues(messageValues)
       
+      // 사용자별 메시지 인덱스를 위한 추가정보 저장
       USER_MESSAGES_REF.child(currnetUid).child(toUserUid).updateChildValues([messageKey:1])
       USER_MESSAGES_REF.child(toUserUid).child(currnetUid).updateChildValues([messageKey:1])
     }

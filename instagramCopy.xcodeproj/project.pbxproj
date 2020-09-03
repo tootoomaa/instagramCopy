@@ -45,6 +45,8 @@
 		C7F265A82483951300E0BBA1 /* SelectPhotoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265A72483951300E0BBA1 /* SelectPhotoCell.swift */; };
 		C7F265AA2483954100E0BBA1 /* SelectPhotoHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265A92483954100E0BBA1 /* SelectPhotoHeader.swift */; };
 		C7F265AC2484CA8500E0BBA1 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F265AB2484CA8500E0BBA1 /* Constants.swift */; };
+		C7F89E0124B2C05B00774C7F /* HashtagController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F89E0024B2C05B00774C7F /* HashtagController.swift */; };
+		C7F89E0324B2C20E00774C7F /* HashtagCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7F89E0224B2C20E00774C7F /* HashtagCell.swift */; };
 		C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */; };
 		C7FB28F9249F3A5B00BA0E4A /* MessagesController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28F8249F3A5B00BA0E4A /* MessagesController.swift */; };
 		C7FB28FC249F3BF000BA0E4A /* MessageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7FB28FB249F3BF000BA0E4A /* MessageCell.swift */; };
@@ -95,6 +97,8 @@
 		C7F265A72483951300E0BBA1 /* SelectPhotoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPhotoCell.swift; sourceTree = "<group>"; };
 		C7F265A92483954100E0BBA1 /* SelectPhotoHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectPhotoHeader.swift; sourceTree = "<group>"; };
 		C7F265AB2484CA8500E0BBA1 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
+		C7F89E0024B2C05B00774C7F /* HashtagController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagController.swift; sourceTree = "<group>"; };
+		C7F89E0224B2C20E00774C7F /* HashtagCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashtagCell.swift; sourceTree = "<group>"; };
 		C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchPostCell.swift; sourceTree = "<group>"; };
 		C7FB28F8249F3A5B00BA0E4A /* MessagesController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessagesController.swift; sourceTree = "<group>"; };
 		C7FB28FB249F3BF000BA0E4A /* MessageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MessageCell.swift; sourceTree = "<group>"; };
@@ -144,6 +148,7 @@
 				C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */,
 				C7A1FD3324949D200075CB50 /* NotificationCell.swift */,
 				C7FB28F5249F143B00BA0E4A /* SearchPostCell.swift */,
+				C7F89E0224B2C20E00774C7F /* HashtagCell.swift */,
 			);
 			path = Social;
 			sourceTree = "<group>";
@@ -170,6 +175,7 @@
 			children = (
 				C7306BD1245FAC5C0039DB49 /* FeedVC.swift */,
 				C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */,
+				C7F89E0024B2C05B00774C7F /* HashtagController.swift */,
 			);
 			path = Feed;
 			sourceTree = "<group>";
@@ -444,8 +450,10 @@
 				C780EF05247A552100A52183 /* FollowLikeCell.swift in Sources */,
 				C733563724ACB47F001AFD27 /* Message.swift in Sources */,
 				C7306BD2245FAC5C0039DB49 /* FeedVC.swift in Sources */,
+				C7F89E0324B2C20E00774C7F /* HashtagCell.swift in Sources */,
 				C7306BD0245FA7520039DB49 /* MainTabVC.swift in Sources */,
 				C7FB28F6249F143B00BA0E4A /* SearchPostCell.swift in Sources */,
+				C7F89E0124B2C05B00774C7F /* HashtagController.swift in Sources */,
 				C7A1FD3424949D200075CB50 /* NotificationCell.swift in Sources */,
 				C7F265AC2484CA8500E0BBA1 /* Constants.swift in Sources */,
 				C7C6F148245A90DD00F87200 /* AppDelegate.swift in Sources */,

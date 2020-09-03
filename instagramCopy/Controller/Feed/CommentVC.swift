@@ -122,7 +122,12 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
   
   override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier, for: indexPath) as! CommentCell
+    
+    handleHashtagTapped(forCell: cell)
+    handleMenstionTapped(forCell: cell)
+    
     cell.comment = comments[indexPath.item]
+    
     return cell
   }
   
@@ -143,11 +148,32 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
     // 자동으로 key를 생성(childByAutoId()) 한뒤 Value값을 저장
     COMMENT_REF.child(postId).childByAutoId().updateChildValues(value) { (err, ref) in
       self.uploadCommentNotificationToServer()
+      if commentText.contains("@") {
+        self.uploadMentionNofiticationToServer(forPostID: postId, withText: commentText, isForComment: true)
+      }
       self.commentTextField.text = nil
     }
     
   }
   
+  func handleHashtagTapped(forCell cell: CommentCell) {
+    cell.commentLabel.handleHashtagTap { (hashtag) in
+      let hashtagController = HashtagController(collectionViewLayout: UICollectionViewFlowLayout())
+      hashtagController.hashtag = hashtag
+      self.navigationController?.pushViewController(hashtagController, animated: true)
+    }
+  }
+  
+  func handleMenstionTapped(forCell cell: CommentCell) {
+    cell.commentLabel.handleMentionTap { (username) in
+      print("mentioned Username is \(username)")
+      self.getMentionedUser(withUsername: username)
+    }
+    
+  }
+  
+  
+  // MARK: - API
   
   func fetchComment() {
     guard let post = self.post else { return }
@@ -180,7 +206,7 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
     let values = ["checked": 0,
                   "creationDate": creationDate,
                   "uid": currentUid,
-                  "type": COMMENT_INT_VALUE,
+                  "type": COMMENT_MENTION_INT_VALUE,
                   "postId": postId] as [String : Any]
     
     // update Notification values

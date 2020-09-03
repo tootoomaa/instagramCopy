@@ -17,11 +17,11 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
   //MARK: - Properties
   var user: User?
   var posts = [Post]()
+  var currentKey: String?
   
   //MARK: - init
   override func viewDidLoad() {
     super.viewDidLoad()
-    
     // Register cell classes
     // collectionView의 일반 Cell 표시
     collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: reuseIdentifier)
@@ -30,6 +30,8 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     //    collectionView.register(UserPostCell.self, forCellWithReuseIdentifier: reuseIdentifier)
     collectionView.register(UserPostCell.self, forCellWithReuseIdentifier: reuseIdentifier)
     
+    // configure RefreshControll
+    configureRefreshControll()
     
     //backgtound color
     self.collectionView.backgroundColor = .white
@@ -75,6 +77,7 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
   
   override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     // collectionVeiw 를 통해서 보여줄 아이탬 갯수
+    
     return posts.count
   }
   
@@ -83,9 +86,18 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     let feedVC = FeedVC(collectionViewLayout: UICollectionViewFlowLayout())
     feedVC.viewSinglePost = true
     feedVC.post = posts[indexPath.item]
+    feedVC.userProfileController = self
     
     navigationController?.pushViewController(feedVC, animated: true)
     
+  }
+  
+  override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    if posts.count > 9 {
+      if indexPath.item == posts.count - 1 {
+        fetchPosts()
+      }
+    }
   }
   
   
@@ -192,6 +204,21 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
     }
   }
   
+  // MARK: - Handler
+  @objc func handleRefresh() {
+    posts.removeAll(keepingCapacity: false)
+    self.currentKey = nil
+    fetchPosts()
+    collectionView?.reloadData()
+  }
+  
+  func configureRefreshControll() {
+    let refreshControl = UIRefreshControl()
+    refreshControl.addTarget(self, action: #selector(handleRefresh), for: .valueChanged)
+    collectionView.refreshControl = refreshControl
+  }
+  
+  
   //MARK - API
   func fetchCurrentUserData() {
     //get user data
@@ -215,19 +242,48 @@ class UserProfileVC: UICollectionViewController, UICollectionViewDelegateFlowLay
       uid = Auth.auth().currentUser?.uid
     }
     
-    USER_POSTS_REF.child(uid).observe(.childAdded) { (snapshot) in
+    // initial Data pull
+    if currentKey == nil {
       
-      let postId = snapshot.key
-      
-      Database.fetchPost(with: postId, completion: { (post) in
+      USER_POSTS_REF.child(uid).queryLimited(toLast: 10).observeSingleEvent(of: .value) { (snapshot) in
         
-        self.posts.append(post)
+        self.collectionView.refreshControl?.endRefreshing()
         
-        self.posts.sort(by: {(post1, post2) -> Bool in
-          return post1.creationDate > post2.creationDate
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObjects = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObjects.forEach({ snapshot in
+          let postId = snapshot.key
+          self.fetchPost(withPostId: postId)
         })
-        self.collectionView?.reloadData()
+        self.currentKey = first.key
+      }
+    } else {
+      
+      USER_POSTS_REF.child(uid).queryOrderedByKey().queryEnding(atValue: self.currentKey).queryLimited(toLast: 7).observeSingleEvent(of: .value, with: { (snapshot) in
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObjects = snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObjects.forEach({ (snapshot) in
+          let postId = snapshot.key
+          if postId != self.currentKey {
+            self.fetchPost(withPostId: postId)
+          }
+        })
+        self.currentKey = first.key
       })
+    }
+  }
+  
+  func fetchPost(withPostId postId: String) {
+    Database.fetchPost(with: postId) { (post) in
+      self.posts.append(post)
+      
+      self.posts.sort(by:{ (post1, post2) -> Bool in
+        return post1.creationDate > post2.creationDate
+      })
+      self.collectionView?.reloadData()
     }
   }
 }

@@ -8,6 +8,7 @@
 
 import UIKit
 import Firebase
+import ActiveLabel
 
 private let reuseIdentifier = "Cell"
 
@@ -18,6 +19,8 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   var posts = [Post]()
   var viewSinglePost = false    // UserProfileVC
   var post: Post?               // UserProfileVC
+  var currentKey: String?
+  var userProfileController: UserProfileVC?
   
   //MARK: - init
   override func viewDidLoad() {
@@ -58,6 +61,14 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   
   // MARK: UICollectionViewDataSource
   
+  override func collectionView(_ collectionView: UICollectionView, willDisplay cell: UICollectionViewCell, forItemAt indexPath: IndexPath) {
+    if posts.count > 4 {
+      if indexPath.item == posts.count - 1{
+        fetchPosts()
+      }
+    }
+  }
+  
   override func numberOfSections(in collectionView: UICollectionView) -> Int {
     return 1
   }
@@ -84,6 +95,10 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
       cell.post = posts[indexPath.row]
     }
     
+    handleHashtagTapped(forCell: cell)
+    handleUsernameLabelTapped(forCell: cell)
+    handleMentionTapped(forCell: cell)
+    
     return cell
   }
   
@@ -102,7 +117,36 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   }
   
   func handleOptionTapped(for cell: FeedCell) {
-    print("handleOptionTapped")
+    guard let post = cell.post else { return }
+    
+    // 포스트를 작성한 사람만 삭제하도록 적용
+    if post.ownerUid == Auth.auth().currentUser?.uid {
+      let alertController = UIAlertController(title: "Options", message: nil, preferredStyle: .actionSheet)
+      
+      alertController.addAction(UIAlertAction(title: "Delete Posrt", style: .destructive, handler: { (_) in
+        //delete post here
+        post.deletePost()
+        
+        if !self.viewSinglePost {
+          self.handleRefresh()
+        } else {
+          if let userProfileController = self.userProfileController {
+            _ = self.navigationController?.popViewController(animated: true)
+            userProfileController.handleRefresh()
+          }
+        }
+      }))
+      alertController.addAction(UIAlertAction(title: "Edit Post", style: .default, handler: { (_) in
+        // edit post here
+      }))
+      
+      alertController.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: { (_) in
+        // cancel action Sheet
+        
+      }))
+      
+      present(alertController, animated: true, completion: nil)
+    }
   }
   
   func handleLikeTapped(for cell: FeedCell, isDoubleTap: Bool) {
@@ -163,6 +207,7 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   
   @objc func handleRefresh() {
     posts.removeAll(keepingCapacity: false)
+    self.currentKey = nil
     fetchPosts()
     collectionView?.reloadData()
   }
@@ -170,6 +215,33 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   @objc func handleShowMessages() {
     let messagesContoller = MessagesController()
     navigationController?.pushViewController(messagesContoller, animated: true)
+  }
+  
+  
+  func handleHashtagTapped(forCell cell: FeedCell) {
+    cell.captionLabel.handleHashtagTap { (hashtag) in
+      let hashtagController = HashtagController(collectionViewLayout: UICollectionViewFlowLayout())
+      hashtagController.hashtag = hashtag
+      self.navigationController?.pushViewController(hashtagController, animated: true)
+    }
+  }
+  
+  func handleMentionTapped(forCell cell: FeedCell) {
+    cell.captionLabel.handleMentionTap { (username) in
+      self.getMentionedUser(withUsername: username)
+    }
+  }
+  
+  func handleUsernameLabelTapped(forCell cell: FeedCell) {
+    guard let user = cell.post?.user else { return }
+    guard let username = user.username else { return }
+    
+    let customType = ActiveType.custom(pattern: "^\(username)\\b")
+    
+    cell.captionLabel.handleCustomTap(for: customType) { (_) in
+      let userProfileController = UserProfileVC(collectionViewLayout: UICollectionViewFlowLayout())
+      self.navigationController?.pushViewController(userProfileController, animated: true)
+    }
   }
   
   func handleCommentTapped(for cell: FeedCell) {
@@ -218,7 +290,6 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
   
   //MARK: - API
   
-  
   func updateUserFeeds() {
     // let USER_POSTS_REF = DB_REF.child("user-posts")
     // let USER_FEED_REF = DB_REF.child("user-feeds")
@@ -250,22 +321,53 @@ class FeedVC: UICollectionViewController, UICollectionViewDelegateFlowLayout, Fe
     
     guard let currentUid = Auth.auth().currentUser?.uid else { return }
     
-    USER_FEED_REF.child(currentUid).observe(.childAdded) { (snaphot) in
-      
-      let postId = snaphot.key
-      
-      Database.fetchPost(with: postId, completion:  { (post) in
-        self.posts.append(post)
-        
-        self.posts.sort(by: {(post1, post2) -> Bool in
-          return post1.creationDate > post2.creationDate
-        })
-        
-        // stop refreching
+    if self.currentKey == nil {
+      // 최초의 데이터 불러옴
+      print("Fisrt Post Fetch Start")
+      USER_FEED_REF.child(currentUid).queryLimited(toLast: 5).observeSingleEvent(of: .value) { (snapshot) in
+        print("First Fetch: ",snapshot)
         self.collectionView?.refreshControl?.endRefreshing()
         
-        self.collectionView?.reloadData()
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject =  snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        print("First : ",first)
+        allObject.forEach({ (snapshot) in
+          let postId = snapshot.key
+          self.fetchPost(withPostId: postId)
+        })
+        
+        self.currentKey = first.key
+      }
+    } else {
+      // 두번째 데이터를 불러올 때부터 사용되는 구문
+      USER_FEED_REF.child(currentUid).queryOrderedByKey().queryEnding(atValue: self.currentKey).queryLimited(toLast: 6).observeSingleEvent(of: .value, with:  { (snapshot) in
+        
+        guard let first = snapshot.children.allObjects.first as? DataSnapshot else { return }
+        guard let allObject =  snapshot.children.allObjects as? [DataSnapshot] else { return }
+        
+        allObject.forEach({ (snapshot) in
+          let postId = snapshot.key
+          if postId != self.currentKey {
+            self.fetchPost(withPostId: postId)
+          }
+        })
+        self.currentKey = first.key
       })
+    }
+  }
+  
+  
+  func fetchPost(withPostId postId: String) {
+    print("Fetch Poat by Postid : ",postId)
+    Database.fetchPost(with: postId) { (post) in
+      self.posts.append(post)
+      
+      self.posts.sort(by:{ (post1, post2) -> Bool in
+        return post1.creationDate > post2.creationDate
+      })
+      self.collectionView?.reloadData()
+      
     }
   }
 }

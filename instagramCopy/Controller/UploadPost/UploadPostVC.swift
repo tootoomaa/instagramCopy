@@ -133,12 +133,21 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
           // upload information to database
           postId.updateChildValues(values) { (erro, ref) in
             
-            //update user-post structure
+            // update user-post structure
             guard let postidKey = postId.key else {return}
             DB_REF.child("user-posts").child(currentUid).updateChildValues([postidKey:1])
             
-            //update user-feed structure
+            // update user-feed structure
             self.updateUserFetchFeeds(with: postidKey)
+            
+            // update Hashtag to Server
+            self.uploadHashTagToServer(withPostId: postidKey)
+            
+            // upload mention notification to server
+            if caption.contains("@") {
+              guard let postId = postId.key else { return }
+              self.uploadMentionNofiticationToServer(forPostID: postId, withText: caption, isForComment: false)
+            }
             
             // return to home feed
             self.dismiss(animated: true,completion: {
@@ -162,5 +171,27 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
   func loadImage() {
     guard let selectedImage = self.selectedImage else {return}
     photoImageView.image = selectedImage
+  }
+  
+  // MARK: - API
+  
+  
+  func uploadHashTagToServer(withPostId postId: String) {
+    
+    guard let caption = captionTextView.text else { return }
+    
+    let words: [String] = caption.components(separatedBy: .whitespacesAndNewlines)
+    
+    for var word in words {
+      
+      if word.hasPrefix("#") {
+        word = word.trimmingCharacters(in: .punctuationCharacters)
+        word = word.trimmingCharacters(in: .symbols)
+        
+        let hashtagValues = [postId: 1]
+        
+        HASHTAG_POST_REF.child(word.lowercased()).updateChildValues(hashtagValues)
+      }
+    }
   }
 }

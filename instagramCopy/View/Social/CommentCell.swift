@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import ActiveLabel
 
 class CommentCell: UICollectionViewCell {
   
@@ -15,20 +16,9 @@ class CommentCell: UICollectionViewCell {
       
       guard let user = comment?.user else { return }
       guard let profileImageUrl = user.profileImageUrl else { return }
-      guard let username = user.username else { return }
-      guard let commentText = comment?.commentText else { return }
-      guard let timeStamp = getCommentTimeStamp() else { return }
       
       profileImageView.loadImage(with: profileImageUrl)
-      
-      let attributedText = NSMutableAttributedString(string: "\(username)", attributes: [NSAttributedString.Key.font: UIFont.boldSystemFont(ofSize: 12)])
-         attributedText.append(NSAttributedString(string: " \(commentText)", attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12)]))
-
-      
-      attributedText.append(NSAttributedString(string: " \(timeStamp)", attributes: [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 12), NSAttributedString.Key.foregroundColor: UIColor.lightGray]))
-      
-      commentTextView.attributedText = attributedText
-      
+      configureCommentLabel()
     }
   }
   
@@ -40,12 +30,66 @@ class CommentCell: UICollectionViewCell {
     return iv
   }()
   
-  let commentTextView: UITextView = {
-    let tv = UITextView()
-    tv.font = UIFont.systemFont(ofSize: 12)
-    tv.isScrollEnabled = false
-    return tv
+  let commentLabel: ActiveLabel = {
+    let label = ActiveLabel()
+    label.font = UIFont.systemFont(ofSize: 12)
+    label.font = .systemFont(ofSize: 12)
+    label.numberOfLines = 0
+    return label
   }()
+  
+  // MARK: - Init
+  
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    
+    addSubview(profileImageView)
+    profileImageView.anchor(top: nil, left: leftAnchor, bottom: nil, right: nil, paddingTop: 8, paddingLeft: 8, paddingBottom: 0, paddingRight: 0, width: 40, height: 40)
+    profileImageView.centerYAnchor.constraint(equalTo : self.centerYAnchor).isActive = true
+    profileImageView.layer.cornerRadius = 40 / 2
+    
+    addSubview(commentLabel)
+    commentLabel.anchor(top: topAnchor, left: profileImageView.rightAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 4, paddingLeft: 4, paddingBottom: 4, paddingRight: 4, width: 0, height: 0)
+    
+  }
+  
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+  
+  
+  // MARK: - Handler
+  
+  func configureCommentLabel() {
+    guard let comment = self.comment else { return }
+    guard let user = comment.user else { return }
+    guard let username = user.username else { return }
+    guard let commentText = comment.commentText else { return }
+    
+    let customType = ActiveType.custom(pattern: "^\(username)\\b")
+    
+    commentLabel.enabledTypes = [.mention, .hashtag, .url, customType]
+    
+    commentLabel.configureLinkAttribute = { (type, attributes, isSelected) in
+      var atts = attributes
+      
+      switch type {
+      case .custom:
+        atts[NSAttributedString.Key.font] = UIFont.boldSystemFont(ofSize: 12)
+      default: ()
+      }
+      return atts
+    }
+    
+    commentLabel.customize { (label) in
+      label.text = "\(username), \(commentText)"
+      label.customColor[customType] = .black
+      label.font = UIFont.systemFont(ofSize: 12)
+      label.textColor = .black
+      label.numberOfLines = 0
+    }
+    
+  }
   
   func getCommentTimeStamp() -> String? {
     
@@ -61,21 +105,4 @@ class CommentCell: UICollectionViewCell {
     
   }
   
-  
-  override init(frame: CGRect) {
-    super.init(frame: frame)
-    
-    addSubview(profileImageView)
-    profileImageView.anchor(top: nil, left: leftAnchor, bottom: nil, right: nil, paddingTop: 8, paddingLeft: 8, paddingBottom: 0, paddingRight: 0, width: 40, height: 40)
-    profileImageView.centerYAnchor.constraint(equalTo : self.centerYAnchor).isActive = true
-    profileImageView.layer.cornerRadius = 40 / 2
-    
-    addSubview(commentTextView)
-    commentTextView.anchor(top: topAnchor, left: profileImageView.rightAnchor, bottom: bottomAnchor, right: rightAnchor, paddingTop: 4, paddingLeft: 4, paddingBottom: 4, paddingRight: 4, width: 0, height: 0)
-
-  }
-  
-  required init?(coder: NSCoder) {
-    fatalError("init(coder:) has not been implemented")
-  }
 }

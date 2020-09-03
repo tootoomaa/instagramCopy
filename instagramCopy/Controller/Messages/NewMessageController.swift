@@ -61,7 +61,7 @@ class NewMessageController: UITableViewController {
   //MARK: - Handler
   
   @objc func handleCancle() {
-    print("candle")
+    dismiss(animated: true, completion: nil)
   }
   
   func configureNavigationBar() {
