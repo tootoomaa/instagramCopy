@@ -17,41 +17,11 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
   var post: Post?
   var comments = [Comment]()
 
-  
-  lazy var containerView: UIView = {
-    let containerView = UIView()
-    containerView.frame = CGRect(x: 0, y: 0, width: 100, height: 50)
-    
-    containerView.addSubview(postButton)
-    postButton.anchor(top: nil, left: nil, bottom: nil, right: containerView.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 8, width: 50, height: 0)
-    postButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor).isActive = true
-    
-    containerView.addSubview(commentTextField)
-    commentTextField.anchor(top: containerView.topAnchor, left: containerView.leftAnchor, bottom: containerView.bottomAnchor, right: postButton.leftAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 8, width: 0, height: 0)
-    
-    let separatorView = UIView()
-    separatorView.backgroundColor = UIColor(red: 230/255, green: 230/255, blue: 230/255, alpha: 1)
-    containerView.addSubview(separatorView)
-    separatorView.anchor(top: containerView.topAnchor, left: containerView.leftAnchor, bottom: nil, right: containerView.rightAnchor, paddingTop: 0, paddingLeft: 0, paddingBottom: 0, paddingRight: 0, width: 0, height: 0.5)
-    
+  lazy var containerView: CommentInputAccessoryView = {
+    let frame = CGRect(x: 0 , y: 0, width: view.frame.width, height: 50)
+    let containerView = CommentInputAccessoryView(frame: frame)
     containerView.backgroundColor = .white
     return containerView
-  }()
-  
-  let commentTextField: UITextField = {
-    let tf = UITextField()
-    tf.placeholder = "   Enter comment... "
-    tf.font = UIFont.systemFont(ofSize: 14)
-    return tf
-  }()
-  
-  let postButton: UIButton = {
-    let bt = UIButton(type: .system)
-    bt.setTitle("Post", for: .normal)
-    bt.setTitleColor(.black, for: .normal)
-    bt.titleLabel?.font = UIFont.boldSystemFont(ofSize: 14)
-    bt.addTarget(self, action: #selector(handleUploadComment), for: .touchUpInside)
-    return bt
   }()
   
   //MARK: - init
@@ -136,7 +106,7 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
   @objc func handleUploadComment() {
     // 필수 값 확인
     guard let postId = self.post?.postId else { return }
-    guard let commentText = commentTextField.text else {return}
+    guard let commentText = containerView.commentTextField.text else {return}
     guard let uid = Auth.auth().currentUser?.uid else {return}
     
     // 생성 시간 생성

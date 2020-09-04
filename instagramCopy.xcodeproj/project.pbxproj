@@ -25,6 +25,8 @@
 		C780EF03247A542400A52183 /* FollowLikeVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780EF02247A542400A52183 /* FollowLikeVC.swift */; };
 		C780EF05247A552100A52183 /* FollowLikeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C780EF04247A552100A52183 /* FollowLikeCell.swift */; };
 		C79A0B472500AB2C0061F078 /* EditProfileController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79A0B462500AB2C0061F078 /* EditProfileController.swift */; };
+		C79A0B4A2501007C0061F078 /* CommentInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79A0B492501007C0061F078 /* CommentInputAccessoryView.swift */; };
+		C79A0B4C2501009B0061F078 /* CommentInputTextView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C79A0B4B2501009B0061F078 /* CommentInputTextView.swift */; };
 		C7A05234247222DF00AF149F /* SearchUserCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A05233247222DF00AF149F /* SearchUserCell.swift */; };
 		C7A1FD2E2493A0E30075CB50 /* CommentVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */; };
 		C7A1FD302493A1C30075CB50 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */; };
@@ -76,6 +78,8 @@
 		C780EF02247A542400A52183 /* FollowLikeVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowLikeVC.swift; sourceTree = "<group>"; };
 		C780EF04247A552100A52183 /* FollowLikeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FollowLikeCell.swift; sourceTree = "<group>"; };
 		C79A0B462500AB2C0061F078 /* EditProfileController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EditProfileController.swift; sourceTree = "<group>"; };
+		C79A0B492501007C0061F078 /* CommentInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputAccessoryView.swift; sourceTree = "<group>"; };
+		C79A0B4B2501009B0061F078 /* CommentInputTextView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentInputTextView.swift; sourceTree = "<group>"; };
 		C7A05233247222DF00AF149F /* SearchUserCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchUserCell.swift; sourceTree = "<group>"; };
 		C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentVC.swift; sourceTree = "<group>"; };
 		C7A1FD2F2493A1C30075CB50 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
@@ -155,6 +159,16 @@
 			path = Social;
 			sourceTree = "<group>";
 		};
+		C79A0B48250100570061F078 /* Comments */ = {
+			isa = PBXGroup;
+			children = (
+				C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */,
+				C79A0B492501007C0061F078 /* CommentInputAccessoryView.swift */,
+				C79A0B4B2501009B0061F078 /* CommentInputTextView.swift */,
+			);
+			path = Comments;
+			sourceTree = "<group>";
+		};
 		C7A027BB24613B6A00514DFD /* Login */ = {
 			isa = PBXGroup;
 			children = (
@@ -175,8 +189,8 @@
 		C7A027BD24613B8900514DFD /* Feed */ = {
 			isa = PBXGroup;
 			children = (
+				C79A0B48250100570061F078 /* Comments */,
 				C7306BD1245FAC5C0039DB49 /* FeedVC.swift */,
-				C7A1FD2D2493A0E30075CB50 /* CommentVC.swift */,
 				C7F89E0024B2C05B00774C7F /* HashtagController.swift */,
 			);
 			path = Feed;
@@ -451,6 +465,7 @@
 				C7E7A566248F53C4000E899A /* UserPostCell.swift in Sources */,
 				C7C6F14C245A90DD00F87200 /* ViewController.swift in Sources */,
 				C780EF05247A552100A52183 /* FollowLikeCell.swift in Sources */,
+				C79A0B4C2501009B0061F078 /* CommentInputTextView.swift in Sources */,
 				C733563724ACB47F001AFD27 /* Message.swift in Sources */,
 				C7306BD2245FAC5C0039DB49 /* FeedVC.swift in Sources */,
 				C7F89E0324B2C20E00774C7F /* HashtagCell.swift in Sources */,
@@ -462,6 +477,7 @@
 				C7F265AC2484CA8500E0BBA1 /* Constants.swift in Sources */,
 				C7C6F148245A90DD00F87200 /* AppDelegate.swift in Sources */,
 				C7BE405D24908543001FA135 /* FeedCell.swift in Sources */,
+				C79A0B4A2501007C0061F078 /* CommentInputAccessoryView.swift in Sources */,
 				C7306BCC245C40FF0039DB49 /* SignUpVC.swift in Sources */,
 				C7A1FD3624950DCF0075CB50 /* Notification.swift in Sources */,
 				C7FB28FE249F87DB00BA0E4A /* NewMessageController.swift in Sources */,
