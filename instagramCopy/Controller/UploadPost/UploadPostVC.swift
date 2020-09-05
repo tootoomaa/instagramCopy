@@ -12,10 +12,25 @@ import Firebase
 class UploadPostVC: UIViewController,UITextViewDelegate {
   
   //MARK: - Properties
-  var selectedImage: UIImage?
+  enum UploadAction: Int{
+    case UploadPost
+    case SaveChange
+    
+    init(index: Int) {
+      switch index {
+      case 0: self = .UploadPost
+      case 1: self = .SaveChange
+      default: self = .UploadPost
+      }
+    }
+  }
   
-  var photoImageView: UIImageView = {
-    let iv = UIImageView()
+  var uploadAction: UploadAction = .UploadPost
+  var selectedImage: UIImage?
+  var postToEdit: Post?
+  
+  var photoImageView: CustomImageView = {
+    let iv = CustomImageView()
     iv.contentMode = .scaleAspectFill
     iv.clipsToBounds = true
     return iv
@@ -25,18 +40,17 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
     let tv = UITextView()
     tv.backgroundColor = UIColor.groupTableViewBackground
     tv.font = UIFont.systemFont(ofSize: 12)
-    
     return tv
   }()
   
-  let shareButton: UIButton = {
+  let actionButton: UIButton = {
     let button = UIButton(type: .system)
     button.backgroundColor = UIColor(red: 149/255, green: 204/255, blue: 244/255, alpha: 1)
     button.setTitle("Share", for: .normal)
     button.setTitleColor(.white, for: .normal)
     button.layer.cornerRadius = 5
     button.isEnabled = false
-    button.addTarget(self, action: #selector(handlerPostButton), for: .touchUpInside)
+    button.addTarget(self, action: #selector(handleUploadAction), for: .touchUpInside)
     return button
   }()
   
@@ -55,18 +69,39 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
     configureViewCompnent()
   }
   
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+   
+    if uploadAction == .SaveChange {
+      guard let post = self.postToEdit else { return }
+      photoImageView.loadImage(with: post.imageUrl)
+      captionTextView.text = post.caption
+      self.navigationItem.title = "Edit Post"
+      self.navigationItem.leftBarButtonItem = UIBarButtonItem(title: "Cancel", style: .plain, target: self, action: #selector(handleCancel))
+      self.navigationController?.navigationBar.tintColor = .black
+      actionButton.setTitle("Save change", for: .normal)
+    } else {
+      actionButton.setTitle("Share", for: .normal)
+      self.navigationItem.title = "Upload Post"
+    }
+  }
+  
   //MARK: - UITextViewDelegate
   func textViewDidChange(_ textView: UITextView) {
     guard !textView.text.isEmpty else {
-      shareButton.isEnabled = false
-      shareButton.backgroundColor = UIColor(red: 149/255, green: 204/255, blue: 244/255, alpha: 1)
+      actionButton.isEnabled = false
+      actionButton.backgroundColor = UIColor(red: 149/255, green: 204/255, blue: 244/255, alpha: 1)
       return
     }
     
-    shareButton.isEnabled = true
-    shareButton.backgroundColor = UIColor(red: 17/255, green: 154/255, blue: 237/255, alpha: 1)
+    actionButton.isEnabled = true
+    actionButton.backgroundColor = UIColor(red: 17/255, green: 154/255, blue: 237/255, alpha: 1)
   }
   
+  // MARK: - Handler
+  @objc func handleCancel() {
+    self.dismiss(animated: true, completion: nil)
+  }
   
   //MARK: - Post handler
   
@@ -88,9 +123,31 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
     
   }
   
+  @objc func handleUploadAction() {
+    buttonSelector(uploadAction: uploadAction)
+  }
   
-  @objc func handlerPostButton() {
+  func buttonSelector(uploadAction: UploadAction) {
+    switch uploadAction {
+    case .UploadPost:
+      handleUploadPost()
+    case .SaveChange:
+      handleSavePostChanges()
+    }
+  }
+  
+  func handleSavePostChanges() {
+    guard let post = self.postToEdit else { return }
+    guard let updatedCaption = captionTextView.text else { return }
     
+    uploadHashTagToServer(withPostId: post.postId)
+    
+    POSTS_REF.child(post.postId).child("caption").setValue(updatedCaption) { (err, erf) in
+      self.dismiss(animated: true, completion: nil)
+    }
+  }
+  
+  func handleUploadPost() {
     guard
       let caption = captionTextView.text,
       let postImg = photoImageView.image,
@@ -133,12 +190,21 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
           // upload information to database
           postId.updateChildValues(values) { (erro, ref) in
             
-            //update user-post structure
+            // update user-post structure
             guard let postidKey = postId.key else {return}
             DB_REF.child("user-posts").child(currentUid).updateChildValues([postidKey:1])
             
-            //update user-feed structure
+            // update user-feed structure
             self.updateUserFetchFeeds(with: postidKey)
+            
+            // update Hashtag to Server
+            self.uploadHashTagToServer(withPostId: postidKey)
+            
+            // upload mention notification to server
+            if caption.contains("@") {
+              guard let postId = postId.key else { return }
+              self.uploadMentionNofiticationToServer(forPostID: postId, withText: caption, isForComment: false)
+            }
             
             // return to home feed
             self.dismiss(animated: true,completion: {
@@ -155,12 +221,34 @@ class UploadPostVC: UIViewController,UITextViewDelegate {
     photoImageView.anchor(top: view.topAnchor, left: view.leftAnchor, bottom: nil, right: nil, paddingTop: 92, paddingLeft: 12, paddingBottom: 0, paddingRight: 0, width: 100, height: 100)
     view.addSubview(captionTextView)
     captionTextView.anchor(top: view.topAnchor, left: photoImageView.rightAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 92, paddingLeft: 20, paddingBottom: 0, paddingRight: 20, width: 0, height: 100)
-    view.addSubview(shareButton)
-    shareButton.anchor(top: photoImageView.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingBottom: 0, paddingRight: 12, width: 0, height: 50)
+    view.addSubview(actionButton)
+    actionButton.anchor(top: photoImageView.bottomAnchor, left: view.leftAnchor, bottom: nil, right: view.rightAnchor, paddingTop: 12, paddingLeft: 12, paddingBottom: 0, paddingRight: 12, width: 0, height: 50)
   }
   
   func loadImage() {
     guard let selectedImage = self.selectedImage else {return}
     photoImageView.image = selectedImage
+  }
+
+  // MARK: - API
+  
+  
+  func uploadHashTagToServer(withPostId postId: String) {
+    
+    guard let caption = captionTextView.text else { return }
+    
+    let words: [String] = caption.components(separatedBy: .whitespacesAndNewlines)
+    
+    for var word in words {
+      
+      if word.hasPrefix("#") {
+        word = word.trimmingCharacters(in: .punctuationCharacters)
+        word = word.trimmingCharacters(in: .symbols)
+        
+        let hashtagValues = [postId: 1]
+        
+        HASHTAG_POST_REF.child(word.lowercased()).updateChildValues(hashtagValues)
+      }
+    }
   }
 }

@@ -11,8 +11,6 @@ import Firebase
 
 class LoginVC: UIViewController {
     
-    
-    
     let logoContainerview: UIView = {
         let view = UIView()
         let logoImageView = UIImageView(image: #imageLiteral(resourceName: "Instagram_logo_white"))

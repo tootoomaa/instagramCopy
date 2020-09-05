@@ -9,6 +9,14 @@
 import UIKit
 import Firebase
 
+extension UIColor {
+  
+  static func rgb(red: CGFloat, green: CGFloat, blue: CGFloat) -> UIColor {
+    return UIColor(red: red/255, green: green/255, blue: blue/255, alpha: 1)
+  }
+  
+}
+
 extension UIButton {
   
   func configure(didFollow: Bool) {
@@ -31,7 +39,74 @@ extension UIButton {
   }
 }
 
-
+extension UIViewController {
+  
+  func getMentionedUser(withUsername username: String) {
+    
+    USER_REF.observe(.childAdded) { (snapshot) in
+      
+      let uid = snapshot.key
+      
+      USER_REF.child(uid).observeSingleEvent(of: .value, with: { (snapshot) in
+        guard let dictionary = snapshot.value as? Dictionary<String, AnyObject> else { return }
+        
+        if username == dictionary["username"] as? String {
+          Database.fetchUser(with: uid, completion:  { (user) in
+            let userProfileController = UserProfileVC(collectionViewLayout: UICollectionViewFlowLayout())
+            userProfileController.user = user
+            self.navigationController?.pushViewController(userProfileController, animated: true)
+            return
+          })
+        }
+      })
+    }
+  }
+  
+  func uploadMentionNofiticationToServer(forPostID postId: String, withText text: String, isForComment: Bool) {
+    
+    guard let currentUid = Auth.auth().currentUser?.uid else { return }
+    
+    let creationDate = Int(NSDate().timeIntervalSince1970)
+    let words = text.components(separatedBy: .whitespacesAndNewlines)
+    
+    var mentionIntegerValue: Int!
+    
+    if isForComment {
+      mentionIntegerValue = COMMENT_MENTION_INT_VALUE
+    } else {
+      mentionIntegerValue = POST_MTENTION_INT_VALUE
+    }
+    
+    for var word in words {
+      if word.hasPrefix("@") {
+        word = word.trimmingCharacters(in: .symbols)
+        word = word.trimmingCharacters(in: .punctuationCharacters)
+        
+        USER_REF.observe(.childAdded, with: { (snapshot) in
+          let uid = snapshot.key
+          
+          USER_REF.child(uid).observeSingleEvent(of: .value, with: { (snaphost) in
+            
+            guard let dictionary = snapshot.value as? Dictionary<String, AnyObject> else { return }
+            
+            if word == dictionary["username"] as? String {
+              
+              let notificationValues = ["postId": postId,
+                                        "uid" : uid,
+                                        "type" : mentionIntegerValue,
+              "creationDate" : creationDate] as [String: Any]
+              
+              if currentUid != uid {
+                NOTIFICATION_REF.child(uid).childByAutoId().updateChildValues(notificationValues)
+              }
+            }
+          })
+        })
+      }
+    }
+  }
+  
+}
 
 
 extension UIView {
@@ -136,5 +211,44 @@ extension Database {
         completion(post)
       }
     })
+  }
+}
+
+
+extension Date {
+  
+  func timeAgoToDisplay() -> String {
+    let secondsAgo = Int(Date().timeIntervalSince(self))
+    
+    let minute = 60
+    let hour = 60 * minute
+    let day = 24 * hour
+    let week = 7 * day
+    let month = 4 * week
+    
+    let quotient: Int
+    let unit: String
+    
+    if secondsAgo < minute {
+      quotient = secondsAgo
+      unit = "SECOND"
+    } else if secondsAgo < hour {
+      quotient = secondsAgo / minute
+      unit = "MIN"
+    } else if secondsAgo < day {
+      quotient = secondsAgo / hour
+      unit = "HOUR"
+    }  else if secondsAgo < week {
+      quotient = secondsAgo / day
+      unit = "DAY"
+    } else if secondsAgo < month {
+      quotient = secondsAgo / week
+      unit = "WEEK"
+    } else {
+      quotient = secondsAgo / month
+      unit = "MONTH"
+    }
+    
+    return "\(quotient) \(unit) \(quotient == 1 ? "" : "S") AGO"
   }
 }

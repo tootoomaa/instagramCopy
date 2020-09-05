@@ -193,7 +193,7 @@ class SignUpVC: UIViewController, UIImagePickerControllerDelegate & UINavigation
             print("make file name")
             storageRef.child("profile_image").child(filename).putData(uploadDate, metadata: nil) { (metadata, error) in
                 
-                //handle error
+                
                 if let error = error {
                     print("Failed to upload image to Firebase Storage with error.", error.localizedDescription)
                 }
