@@ -21,6 +21,7 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
     let frame = CGRect(x: 0 , y: 0, width: view.frame.width, height: 50)
     let containerView = CommentInputAccessoryView(frame: frame)
     containerView.backgroundColor = .white
+    containerView.delegate = self
     return containerView
   }()
   
@@ -102,30 +103,6 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
   }
   
   //MARK: - handlers
-    // comment화면 내에서 POST 버튼을 누를경우 처리 하는 구분
-  @objc func handleUploadComment() {
-    // 필수 값 확인
-    guard let postId = self.post?.postId else { return }
-    guard let commentText = containerView.commentTextField.text else {return}
-    guard let uid = Auth.auth().currentUser?.uid else {return}
-    
-    // 생성 시간 생성
-    let creationDate = Int(NSDate().timeIntervalSince1970)
-    // FireBaseDB 에 저장할 데이터 생성
-    let value = ["commentText": commentText,
-                 "creationDate": creationDate,
-                 "uid": uid] as [String:Any]
-    // 자동으로 key를 생성(childByAutoId()) 한뒤 Value값을 저장
-    COMMENT_REF.child(postId).childByAutoId().updateChildValues(value) { (err, ref) in
-      self.uploadCommentNotificationToServer()
-      if commentText.contains("@") {
-        self.uploadMentionNofiticationToServer(forPostID: postId, withText: commentText, isForComment: true)
-      }
-      self.commentTextField.text = nil
-    }
-    
-  }
-  
   func handleHashtagTapped(forCell cell: CommentCell) {
     cell.commentLabel.handleHashtagTap { (hashtag) in
       let hashtagController = HashtagController(collectionViewLayout: UICollectionViewFlowLayout())
@@ -139,12 +116,9 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
       print("mentioned Username is \(username)")
       self.getMentionedUser(withUsername: username)
     }
-    
   }
   
-  
   // MARK: - API
-  
   func fetchComment() {
     guard let post = self.post else { return }
     guard let postId = post.postId else { return }
@@ -159,8 +133,6 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
         let comment = Comment(user: user, dictionary: dictionary)
         self.comments.append(comment)
         self.collectionView.reloadData()
-        
-        
       })
     }
   }
@@ -182,6 +154,29 @@ class CommentVC: UICollectionViewController, UICollectionViewDelegateFlowLayout 
     // update Notification values
     if uid != currentUid {
       NOTIFICATION_REF.child(uid).childByAutoId().updateChildValues(values)
+    }
+  }
+}
+
+extension CommentVC: CommentInputAccessoryViewDelegate {
+  
+  func didSubmit(forComment comment: String) {
+    guard let postId = self.post?.postId else { return }
+    guard let uid = Auth.auth().currentUser?.uid else {return}
+    
+    // 생성 시간 생성
+    let creationDate = Int(NSDate().timeIntervalSince1970)
+    // FireBaseDB 에 저장할 데이터 생성
+    let value = ["commentText": comment,
+                 "creationDate": creationDate,
+                 "uid": uid] as [String:Any]
+    // 자동으로 key를 생성(childByAutoId()) 한뒤 Value값을 저장
+    COMMENT_REF.child(postId).childByAutoId().updateChildValues(value) { (err, ref) in
+      self.uploadCommentNotificationToServer()
+      if comment.contains("@") {
+        self.uploadMentionNofiticationToServer(forPostID: postId, withText: comment, isForComment: true)
+      }
+      self.containerView.clearCommentTextView()
     }
   }
 }
